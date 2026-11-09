@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Level · Launch coins that level up</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F4F3FB;--surface:#FFFFFF;--ink:#1B1740;--muted:#5E5B80;--line:#DAD7EE;--accent:#5B3DF5;--on-accent:#fff;--gold:#E8A317;--green:#0E9F7A;--step:#D8D4F2;
+--head:"Unbounded","Trebuchet MS",system-ui,sans-serif;--body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12102B;--surface:#1C1A3D;--ink:#ECEBFA;--muted:#A19EC8;--line:#2E2B5A;--accent:#9B8CFF;--on-accent:#12102B;--gold:#F7C763;--green:#3DD6A8;--step:#2E2B5A;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12102B;--surface:#1C1A3D;--ink:#ECEBFA;--muted:#A19EC8;--line:#2E2B5A;--accent:#9B8CFF;--on-accent:#12102B;--gold:#F7C763;--green:#3DD6A8;--step:#2E2B5A;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+a{color:inherit}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar{max-width:1040px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.logo{font:800 20px var(--head);text-decoration:none;margin-right:auto;display:flex;align-items:center;gap:10px}
+.logo b{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--on-accent);font-size:15px}
+nav{display:flex;gap:4px;flex-wrap:wrap}
+nav a{padding:6px 12px;border-radius:8px;text-decoration:none;color:var(--muted);font-weight:500}
+nav a[aria-current="page"]{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+button,.btn{font:600 15px var(--body);cursor:pointer;border:0;border-radius:10px;padding:10px 18px;background:var(--accent);color:var(--on-accent);text-decoration:none;display:inline-block}
+button.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);padding:6px 10px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+main{max-width:1040px;margin:0 auto;padding:36px 20px 64px}
+h1{font:800 clamp(32px,6vw,60px)/1.05 var(--head);letter-spacing:-.03em;margin:0 0 16px}
+h2{font:700 22px/1.2 var(--head);letter-spacing:-.02em;margin:48px 0 14px}
+p.lead{font-size:18px;color:var(--muted);max-width:56ch;margin:0 0 28px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.lv{display:inline-grid;place-items:center;min-width:44px;height:44px;padding:0 8px;border-radius:12px;background:var(--accent);color:var(--on-accent);font:800 18px var(--head)}
+.lv.zero{background:var(--step);color:var(--muted)}
+.lv.big{min-width:84px;height:84px;border-radius:20px;font-size:40px}
+.cap{font:800 clamp(30px,5vw,48px)/1 var(--head);letter-spacing:-.03em}
+.hint{color:var(--muted);font-size:14px}
+.stairs{display:flex;align-items:flex-end;gap:6px;height:190px;margin:22px 0 6px}
+.stairs div{flex:1;border-radius:8px 8px 0 0;background:var(--step);transition:background .25s}
+.stairs div.on{background:var(--accent)}.stairs div.top{background:var(--gold)}
+.ticks{display:flex;gap:6px;color:var(--muted);font-size:12px}.ticks span{flex:1;text-align:center}
+input[type=range]{width:100%;accent-color:var(--accent);height:32px}
+.perks{list-style:none;padding:0;margin:0}
+.perks li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.perks li:last-child{border:0}
+.perks .lv{min-width:34px;height:34px;font-size:14px;border-radius:9px}
+.perks li.locked{opacity:.5}.perks li.locked .lv{background:var(--step);color:var(--muted)}
+.perks b{display:block;line-height:1.3}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:600px}
+th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-weight:600;color:var(--muted);font-size:14px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.prog{height:8px;border-radius:4px;background:var(--step);overflow:hidden;min-width:110px}
+.prog i{display:block;height:100%;background:var(--accent)}
+.up{color:var(--green);font-weight:600}
+label{display:block;font-weight:600;margin:16px 0 6px}
+input:not([type=range]),select{width:100%;font:400 16px var(--body);padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.err{color:#C2410C;font-size:14px;margin-top:6px;min-height:1.2em}
+ul.plain{padding-left:20px;color:var(--muted)}ul.plain li{margin:6px 0}
+.seg{display:flex;height:44px;border-radius:10px;overflow:hidden;gap:2px}.seg i{display:block;height:100%}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:currentColor}
+.legend em{font-style:normal;color:var(--ink)}
+.feed{list-style:none;padding:0;margin:0}.feed li{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw}
+#toast.on{opacity:1}
+footer{max-width:1040px;margin:0 auto;padding:0 20px 40px;color:var(--muted);font-size:14px}
+.chip{display:inline-block;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600;white-space:nowrap;background:var(--step);color:var(--ink)}
+.chip::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:var(--green)}
+.chip.wait::before{background:var(--gold)}.chip.bad::before{background:#E5484D}
+.checks{list-style:none;padding:0;margin:8px 0 0}.checks li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.checks li:last-child{border:0}
+.mark{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--green);color:#fff}
+.mark.no{background:#E5484D}.mark.wait{background:var(--gold);color:#1B1740}
+.ctl{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin-top:14px}.ctl label{margin:0}.ctl output{font-weight:600;font-variant-numeric:tabular-nums}.ctl input{grid-column:1/-1}
+.cols{display:flex;align-items:flex-end;gap:8px;height:170px}.cols div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px}.cols i{display:block;width:100%;border-radius:8px 8px 0 0;background:var(--accent)}.cols span{font-weight:700;font-size:14px}
+tr.sel td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+@media (prefers-reduced-motion:reduce){.stairs div{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+<a class="logo" href="#home"><b>L</b>Level</a>
+<nav id="nav" aria-label="Main"></nav>
+<button class="ghost" id="theme" aria-label="Toggle light and dark theme">Theme</button>
+</div></header>
+<main id="app"></main>
+<footer>Live market data from DexScreener, refreshed about every minute. Levels are Level’s own scoring, not advice. Coins are speculative and most lose value.</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const PAGES=[["home","Home"],["create","Launch"],["tokens","Coins"],["checks","Checks"],["analytics","Analytics"],["docs","Docs"]];
+const LV=[[1e4,"Listed","Appears on the Coins page."],[5e4,"Rising","Featured in the Rising row."],[1e5,"Level-up airdrop","Holders share a reward from the level-up pool."],[2.5e5,"Creator boost","Creator fee share rises from 20% to 25%."],[5e5,"Holder boost","Holder fee share rises by 5 points."],[1e6,"Platform buyback","Level buys back this coin from its pool."],[5e6,"Spotlight","Pinned on the home page and in announcements."],[1e7,"Top level","Permanent badge and a place in the hall of fame."]];
+let T=[];
+const GAP=10,HOLD=60,WASH=30,GRACE=24;
+function verify(c){
+const eff=Math.min(c.m,c.liq*GAP),dl=level(eff),S=c.S,cap=eff<c.m,holdOk=c.held>=HOLD,washOk=c.wash<=WASH;
+let lv=S,st;
+if(dl>S&&washOk&&holdOk)lv=dl;
+if(dl<S&&c.below>=GRACE)lv=S-1;
+if(!washOk)st=["bad","Flagged: "+c.wash+"% wash volume"];
+else if(dl>S&&!holdOk)st=["wait","Pending: held "+c.held+" of "+HOLD+" min"];
+else if(dl<S)st=c.below>=GRACE?["bad","Dropped a level"]:["wait","At risk: "+c.below+" of "+GRACE+" h below"];
+else if(cap)st=["wait","Capped by pool depth"];
+else st=["ok","Verified"];
+return {eff,dl,lv,st,cap,holdOk,washOk}}
+const FEED=[["ORBIT",1,2,"4 min ago"],["NOVA",5,6,"31 min ago"],["HARBOR",4,5,"1 hr ago"],["DRIFT",0,1,"2 hr ago"],["PLUMB",2,3,"3 hr ago"]];
+const level=m=>LV.filter(x=>m>=x[0]).length;
+const money=n=>n>=1e6?"$"+(n/1e6).toFixed(n>=1e7?0:1)+"M":n>=1e3?"$"+Math.round(n/1e3)+"K":"$"+Math.round(n);
+const short=n=>n>=1e6?"$"+n/1e6+"M":"$"+n/1e3+"K";
+const badge=(l,c="")=>`<span class="lv ${l?"":"zero"} ${c}" aria-label="Level ${l}">${l}</span>`;
+const progress=m=>{const l=level(m);if(l===8)return 100;const lo=l?LV[l-1][0]:0,hi=LV[l][0];return Math.max(2,Math.round((m-lo)/(hi-lo)*100))};
+let v=520;const mc=()=>{const r=1000*Math.pow(10,v/1000*4.3);return r>=1e5?Math.round(r/1e4)*1e4:Math.round(r/100)*100};
+function perksHtml(l){return `<ul class="perks">${LV.map((x,i)=>`<li class="${i<l?"":"locked"}">${badge(i+1)}<span><b>${x[1]}</b><span class="hint">${x[2]}</span></span></li>`).join("")}</ul>`}
+function paintSim(){const m=mc(),l=level(m);
+document.getElementById("simcap").textContent=money(m);
+document.getElementById("simlv").outerHTML=`<span id="simlv">${badge(l,"big")}</span>`;
+document.getElementById("simnext").textContent=l===8?"Top level reached.":money(LV[l][0]-m)+" to Level "+(l+1)+" ("+LV[l][1]+")";
+document.querySelectorAll(".stairs div").forEach((d,i)=>{d.className=i<l?(l===8?"top":"on"):""});
+document.getElementById("simperks").innerHTML=perksHtml(l)}
+const V={
+home(){return `<h1>Launch a coin.<br>Watch it level up.</h1>
+<p class="lead">Every coin on Level climbs eight levels as its market cap grows. Each level unlocks real perks for the creator and the people holding.</p>
+<div class="panel"><div class="row" style="align-items:center"><div><div class="hint">Drag to set a market cap</div><div class="cap" id="simcap"></div><div class="hint" id="simnext" style="margin-top:6px"></div></div><div><span id="simlv"></span></div></div>
+<input type="range" id="sim" min="0" max="1000" value="${v}" aria-label="Market cap">
+<div class="stairs" aria-hidden="true">${LV.map((x,i)=>`<div style="height:${28+i*22}px"></div>`).join("")}</div>
+<div class="ticks" aria-hidden="true">${LV.map(x=>`<span>${short(x[0])}</span>`).join("")}</div></div>
+<h2>What each level unlocks</h2><div class="panel" id="simperks"></div>
+<p style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap"><a class="btn" href="#tokens">See live coins</a><a class="btn" href="#create" style="background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)">Launch a coin</a></p>`},
+create(){return `<h1>Launch a coin</h1><p class="lead">Every coin starts at Level 0. Reach $10K market cap and hold it for an hour to get to Level 1. Launching is a preview in this version and sends nothing on chain.</p>
+<div class="row" style="align-items:start"><div class="panel">
+<label for="tk">Ticker</label><input id="tk" maxlength="10" autocomplete="off" placeholder="LADDER"><div class="err" id="e1"></div>
+<label for="nm">Coin name</label><input id="nm" maxlength="32" placeholder="Ladder Cat"><div class="err" id="e2"></div>
+<label for="pr">Paired with</label><select id="pr"><option>SOL</option><option>USDC</option><option>NVDAx</option><option>TSLAx</option><option>SPYx</option></select>
+<label for="fb">Your first buy, as % of supply</label><input id="fb" type="number" min="0" max="2" step="0.1" value="1"><div class="hint" style="margin-top:6px">Capped at 2% of supply.</div><div class="err" id="e3"></div>
+<p style="margin-top:20px"><button id="go">Simulate launch</button></p></div>
+<div class="panel"><b>Launch rules</b><ul class="plain"><li>Liquidity is locked at launch.</li><li>2% maximum first buy per wallet.</li><li>A level counts only after the market cap holds for 1 hour.</li><li>Duplicate tickers cost 2 SOL.</li></ul>
+<div style="display:flex;gap:12px;align-items:center;margin-top:12px">${badge(0)}<span class="hint">Starting level</span></div></div></div>`},
+tokens(){return `<h1>Coins</h1><p class="lead">Ranked by market cap. The bar shows progress to the next level.</p>
+<div class="panel scroll"><table><thead><tr><th>Level</th><th>Coin</th><th>Pair</th><th class="num">Market cap</th><th class="num">24h</th><th>To next level</th></tr></thead><tbody>
+${T.map(x=>{const l=level(x.m);return `<tr><td>${badge(l)}</td><td><b>$${x.t}</b></td><td>${x.pair}</td><td class="num">${money(x.m)}</td><td class="num ${x.d[0]==="+"?"up":""}">${x.d}</td><td><div class="prog" role="img" aria-label="${progress(x.m)}% to next level"><i style="width:${progress(x.m)}%"></i></div></td></tr>`}).join("")}</tbody></table></div>`},
+analytics(){const S=[["Holders",40,"var(--accent)"],["Creators",20,"var(--green)"],["Buyback",20,"var(--gold)"],["Level-up pool",15,"var(--muted)"],["Treasury",5,"var(--step)"]];
+const dist=Array.from({length:9},(_,i)=>T.filter(x=>level(x.m)===i).length),mx=Math.max(...dist,1);
+return `<h1>Analytics</h1><p class="lead">Where fees go and how coins are progressing. All figures are placeholders.</p>
+<h2 style="margin-top:0">Recent level-ups</h2><div class="panel"><ul class="feed">${FEED.map(f=>`<li>${badge(f[2])}<span><b>$${f[0]}</b> moved from Level ${f[1]} to Level ${f[2]}<br><span class="hint">${f[3]}</span></span></li>`).join("")}</ul></div>
+<h2>Coins by level</h2><div class="panel">${dist.map((n,i)=>`<div style="display:flex;gap:12px;align-items:center;margin:6px 0">${badge(i)}<div class="prog" style="flex:1"><i style="width:${n/mx*100}%"></i></div><span class="hint" style="width:20px">${n}</span></div>`).join("")}</div>
+<h2>Where fees go</h2><div class="panel"><div class="seg">${S.map(s=>`<i style="width:${s[1]}%;background:${s[2]}"></i>`).join("")}</div>
+<div class="legend">${S.map(s=>`<span style="color:${s[2]}"><em>${s[1]}%</em> ${s[0]}</span>`).join("")}</div>
+<p class="hint" style="margin:14px 0 0">Proposed split, to be tested before launch. The level-up pool pays holders whenever a coin reaches a new level.</p></div>`},
+docs(){return `<h1>Docs</h1><p class="lead">How levels work and what can go wrong.</p>
+<h2 style="margin-top:0">Levels</h2><div class="panel">${perksHtml(0).replace(/class="locked"/g,"")}</div>
+<h2>Rules that protect levels</h2><ul class="plain"><li>A level counts only after the market cap holds for 1 hour.</li><li>Market cap is measured from pool depth, not a single trade.</li><li>Wash trading and bot volume are excluded from rewards.</li><li>A coin that falls below a level for 24 hours drops back one level.</li></ul>
+<h2>Risks</h2><ul class="plain"><li>Coins are highly speculative. Most lose value, and you can lose everything you put in.</li><li>Market caps can be manipulated, and levels can be gamed despite these rules.</li><li>This program has not been audited.</li><li>Tokenized stocks are issued by third parties who may pause or restrict them.</li><li>Rewards and buybacks may be regulated in your jurisdiction.</li></ul>`}
+};
+let selCoin=0,loading=true,loadErr="",updated=0;
+const mark=k=>`<span class="mark ${k==="ok"?"":k}">${k==="ok"?"✓":k==="no"?"✕":"…"}</span>`;
+function checksHtml(c,r){const ck=[],lim=c.liq*GAP;
+ck.push(r.cap?["wait","Pool depth","Counted "+money(r.eff)+" of "+money(c.m)+". Pool liquidity of "+money(c.liq)+" supports a market cap up to "+money(lim)+"."]:["ok","Pool depth","All of "+money(c.m)+" counts. Pool liquidity of "+money(c.liq)+" supports up to "+money(lim)+"."]);
+if(r.dl>c.S)ck.push(r.holdOk?["ok","Hold time","Held above the Level "+r.dl+" threshold for "+c.held+" min (needs "+HOLD+")."]:["wait","Hold time","Held for "+c.held+" of "+HOLD+" min. The level-up waits until the hour is done."]);
+else ck.push(["ok","Hold time","No level-up pending."]);
+ck.push(r.washOk?["ok","Wash volume",c.wash+"% of volume (limit "+WASH+"%)."]:["no","Wash volume",c.wash+"% of volume is over the "+WASH+"% limit. Level-ups and rewards are paused."]);
+if(r.dl<c.S)ck.push(c.below>=GRACE?["no","Grace period","Below Level "+c.S+" for "+c.below+" h. The coin drops one level."]:["wait","Grace period","Below Level "+c.S+" for "+c.below+" of "+GRACE+" h. The level holds until then."]);
+else ck.push(["ok","Grace period","At or above its current level."]);
+return `<ul class="checks">${ck.map(k=>`<li>${mark(k[0])}<span><b>${k[1]}</b><br><span class="hint">${k[2]}</span></span></li>`).join("")}</ul>`}
+const esc=x=>String(x==null?"":x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function liveChecks(c){const r=c.v,ck=[];
+ck.push(r.cap?["wait","Pool depth","Counted "+money(r.eff)+" of "+money(c.m)+". Pool liquidity of "+money(c.liq)+" supports a market cap up to "+money(c.liq*GAP)+"."]:["ok","Pool depth","All of "+money(c.m)+" counts. Pool liquidity of "+money(c.liq)+" supports up to "+money(c.liq*GAP)+"."]);
+ck.push(r.dl>c.S?["wait","Hold time","An hour ago this coin counted as Level "+c.S+" (about "+money(c.mAgo)+"). The level-up counts once it has held for the full hour."]:r.dl<c.S?["wait","Hold time","An hour ago this coin was Level "+c.S+". Its level follows the lower of now and an hour ago."]:["ok","Hold time","Same level now as an hour ago."]);
+ck.push(c.turn>40?["no","Trading churn","24h volume is "+c.turn.toFixed(0)+"x pool liquidity, over the 40x limit. This is a rough sign of wash trading, so rewards would pause."]:["ok","Trading churn","24h volume is "+c.turn.toFixed(1)+"x pool liquidity (limit 40x)."]);
+ck.push(["wait","Grace period","Not active in this version. It needs stored history to track time below a level."]);
+return `<ul class="checks">${ck.map(k=>`<li>${mark(k[0])}<span><b>${k[1]}</b><br><span class="hint">${k[2]}</span></span></li>`).join("")}</ul>`}
+V.tokens=function(){
+if(loading)return `<h1>Coins</h1><p class="lead">Loading live Solana data…</p>`;
+if(loadErr||!T.length)return `<h1>Coins</h1><p class="lead">${esc(loadErr||"No coins to show yet.")}</p>`;
+const c=T[Math.min(selCoin,T.length-1)],r=c.v,sec=Math.max(0,Math.round((Date.now()-updated)/1000));
+return `<h1>Coins</h1><p class="lead">Live Solana tokens from DexScreener, scored by Level’s checks. Updated ${sec} s ago. The list comes from tokens with a DexScreener profile or boost, not the whole market.</p>
+<div class="panel scroll"><table><thead><tr><th>Level</th><th>Coin</th><th class="num">Market cap</th><th>Status</th><th class="num">24h</th><th>To next level</th><th></th></tr></thead><tbody>
+${T.map((x,i)=>`<tr class="${i===Math.min(selCoin,T.length-1)?"sel":""}"><td>${badge(x.v.lv)}</td><td><b>$${esc(x.t)}</b><div class="hint">${esc(x.name)}</div></td><td class="num">${money(x.m)}</td><td><span class="chip ${esc(x.v.st[0])}">${esc(x.v.st[1])}</span></td><td class="num ${x.d[0]==="+"?"up":""}">${esc(x.d)}</td><td><div class="prog" role="img" aria-label="${progress(x.v.eff)}% to next level"><i style="width:${progress(x.v.eff)}%"></i></div></td><td><button class="ghost" data-i="${i}" aria-label="Show checks for ${esc(x.t)}">Checks</button></td></tr>`).join("")}</tbody></table></div>
+<div class="panel" id="detail" style="margin-top:20px"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">${badge(r.lv,"big")}<div><div class="cap" style="font-size:28px">$${esc(c.t)}</div><div class="hint">Raw market cap ${money(c.m)} would be Level ${level(c.m)}. Verified level is ${r.lv}. Mint ${esc(c.addr.slice(0,4))}…${esc(c.addr.slice(-4))}${c.url?` · <a href="${esc(c.url)}" target="_blank" rel="noopener noreferrer">View on DexScreener</a>`:""}</div></div></div>${liveChecks(c)}</div>`};
+let lab={S:1,pm:480,pl:250,held:30,wash:12,below:0};
+const mcapAt=p=>{const r=1000*Math.pow(10,p/1000*4.3);return r>=1e5?Math.round(r/1e4)*1e4:Math.round(r/100)*100};
+const liqAt=p=>{const r=1000*Math.pow(10,p/1000*3.3);return r>=1e5?Math.round(r/1e4)*1e4:Math.round(r/100)*100};
+const CT=[["S","Current level",0,8,1],["pm","Market cap",0,1000,10],["pl","Pool liquidity",0,1000,10],["held","Minutes above the next threshold",0,180,5],["wash","Wash volume share",0,60,1],["below","Hours below current level",0,36,1]];
+V.checks=function(){return `<h1>Test the checks</h1><p class="lead">Change the inputs and see how a coin’s level is decided. A level-up is only awarded when every check passes.</p>
+<div class="row" style="align-items:start"><div class="panel">${CT.map(k=>`<div class="ctl"><label for="c_${k[0]}">${k[1]}</label><output id="o_${k[0]}"></output><input type="range" id="c_${k[0]}" min="${k[2]}" max="${k[3]}" step="${k[4]}" value="${lab[k[0]]}"></div>`).join("")}</div>
+<div class="panel" id="labout"></div></div>`};
+function paintLab(){const c={m:mcapAt(lab.pm),liq:liqAt(lab.pl),S:lab.S,held:lab.held,wash:lab.wash,below:lab.below},r=verify(c),raw=level(c.m);
+const txt={S:"Level "+c.S,pm:money(c.m),pl:money(c.liq),held:c.held+" min",wash:c.wash+"%",below:c.below+" h"};
+Object.keys(txt).forEach(k=>document.getElementById("o_"+k).textContent=txt[k]);
+const note=r.lv<raw?"The checks held back "+(raw-r.lv)+" level"+(raw-r.lv>1?"s":"")+".":r.lv>raw?"The grace period is keeping this coin at its level.":"No levels were held back.";
+document.getElementById("labout").innerHTML=`<div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><div><div class="hint">Raw market cap level</div>${badge(raw,"big")}</div><div><div class="hint">Verified level</div>${badge(r.lv,"big")}</div><div style="flex:1;min-width:170px"><span class="chip ${r.st[0]}">${r.st[1]}</span><div class="hint" style="margin-top:8px">${note}</div></div></div>`+checksHtml(c,r)}
+function wireLab(){Object.keys(lab).forEach(k=>{const e=document.getElementById("c_"+k);e.oninput=()=>{lab[k]=+e.value;paintLab()}});paintLab()}
+V.analytics=function(){
+if(loading)return `<h1>Analytics</h1><p class="lead">Loading live Solana data…</p>`;
+if(loadErr||!T.length)return `<h1>Analytics</h1><p class="lead">${esc(loadErr||"No coins to show yet.")}</p>`;
+const L=Array.from({length:9},(_,i)=>T.filter(x=>x.v.lv===i)),mx=Math.max(...L.map(a=>a.length),1),tot=T.reduce((s,x)=>s+x.m,0),capped=T.filter(x=>x.v.cap).length;
+return `<h1>Analytics</h1><p class="lead">How the live coins are spread across levels.</p>
+<div class="row"><div class="panel"><div class="hint">Coins tracked</div><div class="cap">${T.length}</div></div><div class="panel"><div class="hint">Combined market cap</div><div class="cap">${money(tot)}</div></div><div class="panel"><div class="hint">Coins capped by pool depth</div><div class="cap">${capped}</div></div></div>
+<h2>Coins by level</h2><div class="panel"><div class="cols" role="img" aria-label="Number of coins at each level">${L.map(a=>`<div><span>${a.length}</span><i style="height:${a.length/mx*80}%;min-height:${a.length?6:2}px;${a.length?"":"opacity:.3"}"></i></div>`).join("")}</div>
+<div class="ticks" style="margin-top:8px">${L.map((a,i)=>`<span>${i}</span>`).join("")}</div>
+<div class="scroll" style="margin-top:18px"><table><thead><tr><th>Level</th><th class="num">Coins</th><th class="num">Combined market cap</th><th class="num">Share of total</th><th class="num">Pending</th><th class="num">Flagged</th></tr></thead><tbody>
+${L.map((a,i)=>{const cm=a.reduce((s,x)=>s+x.m,0),w=a.filter(x=>x.v.st[1].startsWith("Pending")).length,f=a.filter(x=>x.v.st[1].startsWith("Flagged")).length;return `<tr><td>${badge(i)}</td><td class="num">${a.length||"–"}</td><td class="num">${a.length?money(cm):"–"}</td><td class="num">${a.length?Math.round(cm/tot*100)+"%":"–"}</td><td class="num">${w||"–"}</td><td class="num">${f||"–"}</td></tr>`}).join("")}</tbody></table></div></div>`};
+V.docs=function(){return `<h1>Docs</h1><p class="lead">How levels work, how they are checked, and what this version can’t do yet.</p>
+<h2 style="margin-top:0">Levels</h2><div class="panel">${perksHtml(0).replace(/class="locked"/g,"")}</div>
+<h2>How levels are checked</h2><ul class="plain"><li><b>Pool depth.</b> Market cap counts only up to ${GAP} times the pool’s liquidity.</li><li><b>Hold time.</b> A level has to hold across the last hour. Without stored history this is estimated from the 1 hour price change.</li><li><b>Trading churn.</b> 24 hour volume above 40 times liquidity is flagged. It is a rough stand-in for wash trading, not proof of it.</li></ul>
+<h2>Not built yet</h2><ul class="plain"><li>The 24 hour grace period needs stored history.</li><li>Launching, level perks and payouts need an on-chain program and an audit.</li><li>Data comes from DexScreener and can be delayed or wrong.</li></ul>
+<h2>Risks</h2><ul class="plain"><li>Coins are highly speculative. Most lose value, and you can lose everything you put in.</li><li>A level is Level’s own score. It is not advice or an endorsement.</li><li>A well-funded actor can still deepen a pool and hold a price for an hour.</li></ul>`};
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2600)}
+function wire(p){
+if(p==="tokens")document.querySelectorAll("button[data-i]").forEach(b=>b.onclick=()=>{selCoin=+b.dataset.i;render();document.getElementById("detail").scrollIntoView({block:"nearest",behavior:"smooth"})});
+if(p==="checks")wireLab();
+if(p==="home"){const s=document.getElementById("sim");s.oninput=()=>{v=+s.value;paintSim()};paintSim()}
+if(p==="create")document.getElementById("go").onclick=()=>{let ok=true;const tk=document.getElementById("tk").value.trim(),nm=document.getElementById("nm").value.trim(),fb=parseFloat(document.getElementById("fb").value);
+const set=(i,m)=>{document.getElementById(i).textContent=m;if(m)ok=false};
+set("e1",/^[A-Za-z0-9]{1,10}$/.test(tk)?"":"Use 1 to 10 letters or numbers.");
+set("e2",nm?"":"Enter a coin name.");
+set("e3",fb>=0&&fb<=2?"":"First buy must be between 0% and 2% of supply.");
+if(ok)toast("Simulated: $"+tk.toUpperCase()+" would launch at Level 0. Nothing was sent on chain.")}
+}
+function render(){
+let p=(location.hash||"#home").slice(1);if(!V[p])p="home";
+document.getElementById("nav").innerHTML=PAGES.map(a=>`<a href="#${a[0]}"${a[0]===p?' aria-current="page"':""}>${a[1]}</a>`).join("");
+document.getElementById("app").innerHTML=V[p]();wire(p);
+if(render.last&&render.last!==p)window.scrollTo(0,0);render.last=p;
+}
+window.addEventListener("hashchange",render);
+document.getElementById("theme").onclick=()=>{const r=document.documentElement,d=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;r.dataset.theme=d?"light":"dark"};
+function load(){fetch("/api/coins").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{T=j.coins||[];updated=j.updated||Date.now();loading=false;loadErr="";if(selCoin>=T.length)selCoin=0;const p=(location.hash||"#home").slice(1);if(p==="tokens"||p==="analytics")render()}).catch(()=>{loading=false;loadErr="Couldn’t load market data. Check that the /api/coins function is running, then reload.";const p=(location.hash||"#home").slice(1);if(p==="tokens"||p==="analytics")render()})}
+render();load();setInterval(load,60000);
+</script>
+</body>
+</html>
