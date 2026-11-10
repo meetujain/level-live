@@ -93,7 +93,7 @@ tr.sel td{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
 const PAGES=[["home","Home"],["create","Launch"],["tokens","Coins"],["checks","Checks"],["analytics","Analytics"],["docs","Docs"]];
-const LV=[[1e4,"Listed","Appears on the Coins page."],[5e4,"Rising","Featured in the Rising row."],[1e5,"Level-up airdrop","Holders share a reward from the level-up pool."],[2.5e5,"Creator boost","Creator fee share rises from 20% to 25%."],[5e5,"Holder boost","Holder fee share rises by 5 points."],[1e6,"Platform buyback","Level buys back this coin from its pool."],[5e6,"Spotlight","Pinned on the home page and in announcements."],[1e7,"Top level","Permanent badge and a place in the hall of fame."]];
+const LV=[[1e4,"Listed","Appears on the Coins page."],[5e4,"Rising","Featured in the Rising row."],[1e5,"Level-up airdrop","Holders share a reward from the level-up pool."],[2.5e5,"Creator fee unlock","Creator fees vest gradually until this level, then unlock fully. No one’s share changes."],[5e5,"Holder boost","Holder fee share rises by 5 points."],[1e6,"Platform buyback","Level buys back this coin from its pool."],[5e6,"Spotlight","Pinned on the home page and in announcements."],[1e7,"Top level","Permanent badge and a place in the hall of fame."]];
 let T=[];
 const GAP=10,HOLD=60,WASH=30,GRACE=24;
 function verify(c){
@@ -137,7 +137,7 @@ create(){return `<h1>Launch a coin</h1><p class="lead">Every coin starts at Leve
 <label for="pr">Paired with</label><select id="pr"><option>SOL</option><option>USDC</option><option>NVDAx</option><option>TSLAx</option><option>SPYx</option></select>
 <label for="fb">Your first buy, as % of supply</label><input id="fb" type="number" min="0" max="2" step="0.1" value="1"><div class="hint" style="margin-top:6px">Capped at 2% of supply.</div><div class="err" id="e3"></div>
 <p style="margin-top:20px"><button id="go">Simulate launch</button></p></div>
-<div class="panel"><b>Launch rules</b><ul class="plain"><li>Liquidity is locked at launch.</li><li>2% maximum first buy per wallet.</li><li>A level counts only after the market cap holds for 1 hour.</li><li>Duplicate tickers cost 2 SOL.</li></ul>
+<div class="panel"><b>Launch rules</b><ul class="plain"><li>Liquidity is locked at launch.</li><li>2% maximum first buy per wallet.</li><li>A level counts only after the market cap holds for 1 hour.</li><li>Duplicate tickers cost 2 SOL.</li><li>Creator fees vest gradually until the coin reaches Level 4.</li><li>Planned pool: Raydium LaunchLab, then a Raydium pool once the curve target is reached.</li></ul>
 <div style="display:flex;gap:12px;align-items:center;margin-top:12px">${badge(0)}<span class="hint">Starting level</span></div></div></div>`},
 tokens(){return `<h1>Coins</h1><p class="lead">Ranked by market cap. The bar shows progress to the next level.</p>
 <div class="panel scroll"><table><thead><tr><th>Level</th><th>Coin</th><th>Pair</th><th class="num">Market cap</th><th class="num">24h</th><th>To next level</th></tr></thead><tbody>
@@ -206,7 +206,7 @@ ${L.map((a,i)=>{const cm=a.reduce((s,x)=>s+x.m,0),w=a.filter(x=>x.v.st[1].starts
 V.docs=function(){return `<h1>Docs</h1><p class="lead">How levels work, how they are checked, and what this version can’t do yet.</p>
 <h2 style="margin-top:0">Levels</h2><div class="panel">${perksHtml(0).replace(/class="locked"/g,"")}</div>
 <h2>How levels are checked</h2><ul class="plain"><li><b>Pool depth.</b> Market cap counts only up to ${GAP} times the pool’s liquidity.</li><li><b>Hold time.</b> A level has to hold across the last hour. Without stored history this is estimated from the 1 hour price change.</li><li><b>Trading churn.</b> 24 hour volume above 40 times liquidity is flagged. It is a rough stand-in for wash trading, not proof of it.</li></ul>
-<h2>Not built yet</h2><ul class="plain"><li>The 24 hour grace period needs stored history.</li><li>Launching, level perks and payouts need an on-chain program and an audit.</li><li>Data comes from DexScreener and can be delayed or wrong.</li></ul>
+<h2>Planned launch pool</h2><p class="hint">Coins are planned to launch on Raydium LaunchLab: a bonding curve first, then a Raydium pool once the curve target is reached. Splitting fees by level would need Level’s own on-chain program and an audit.</p><h2>Not built yet</h2><ul class="plain"><li>The 24 hour grace period needs stored history.</li><li>Launching, level perks and payouts need an on-chain program and an audit.</li><li>Data comes from DexScreener and can be delayed or wrong.</li></ul>
 <h2>Risks</h2><ul class="plain"><li>Coins are highly speculative. Most lose value, and you can lose everything you put in.</li><li>A level is Level’s own score. It is not advice or an endorsement.</li><li>A well-funded actor can still deepen a pool and hold a price for an hour.</li></ul>`};
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2600)}
 function wire(p){
